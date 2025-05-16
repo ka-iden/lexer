@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-std::string readFile(const std::string& filePath)
+static std::string readFile(const std::string& filePath)
 {
 	std::ifstream file(filePath);
 	if (!file)
@@ -19,8 +19,10 @@ std::string readFile(const std::string& filePath)
 }
 
 const std::string sampleCode =
-R"(
-return 4 + 6;
+R"(func main() {
+	int x = 5;
+	return x + 5;
+}
 )";
 
 

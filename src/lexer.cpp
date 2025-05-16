@@ -16,9 +16,8 @@ std::vector<Token> Lexer::tokenizeAll()
 		Token token = getNextToken();
 		tokens.push_back(token);
 		if (token.type == TokenType::TOKEN_EOF)
-		{
 			break;
-		}
+		
 	}
 	
 	return tokens;
@@ -56,7 +55,6 @@ Token Lexer::getNextToken()
 void Lexer::skipWhitespaceAndComments()
 {
 	bool skippedSomething;
-	
 	do
 	{
 		skippedSomething = false;

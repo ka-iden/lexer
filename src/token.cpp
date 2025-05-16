@@ -1,7 +1,7 @@
 #include "token.h"
 
 std::ostream& operator<< (std::ostream& os, const Token& token)
-{
+{ // Stole the list of tokens from wzid, and the printing style
 	switch (token.type)
 	{
 		case TokenType::TOKEN_EOF:          os << "TOKEN_EOF"; break;
