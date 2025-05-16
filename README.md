@@ -1,7 +1,7 @@
 # lexer
 
 Writing a simple lexer to learn how to tokenize code/statements.  
-This is the first step towards learning how to write not only a programming language, but a lexer has other functions, such as tokenising a math expression for evaluation.
+This is the first step not only towards learning how to write a programming language, but also towards tokenising a math expression for evaluation.
 
 ## Building
 
