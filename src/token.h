@@ -3,7 +3,8 @@
 #include <string>
 #include <ostream>
 
-enum class TokenType { // Stole the list of tokens from wzid
+enum class TokenType
+{ // Stole the list of tokens from wzid
 	TOKEN_EOF,			// End of file
 	TOKEN_LPAREN,		// (
 	TOKEN_RPAREN,		// )
@@ -33,7 +34,8 @@ enum class TokenType { // Stole the list of tokens from wzid
 };
 
 // Token structure to hold token information
-struct Token {
+struct Token
+{
 	TokenType type;
 	std::string value;
 	int line;
@@ -41,9 +43,6 @@ struct Token {
 
 	Token(TokenType t, const std::string& v, int l, int c)
 		: type(t), value(v), line(l), column(c) {}
-	// Default constructor
-	Token() : type(TokenType::TOKEN_EOF), value(""), line(0), column(0) {}
 
-	// Friend operator to print token
-	friend std::ostream& operator<<(std::ostream& os, const Token& token);
+	friend std::ostream& operator<< (std::ostream& os, const Token& token);
 };

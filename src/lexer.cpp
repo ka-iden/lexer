@@ -2,18 +2,21 @@
 #include <cctype>
 #include <iostream>
 
-Lexer::Lexer(const std::string& source) 
-	: m_source(source), m_position(0), m_line(1), m_column(1) {
-}
-
-std::vector<Token> Lexer::tokenizeAll() {
+std::vector<Token> Lexer::tokenizeAll()
+{
 	std::vector<Token> tokens;
-	reset();
-	
-	while (hasMoreTokens()) {
+
+	// Reset lexer state
+	m_position = 0;
+	m_line = 1;
+	m_column = 1;
+
+	while (!isAtEnd())
+	{
 		Token token = getNextToken();
 		tokens.push_back(token);
-		if (token.type == TokenType::TOKEN_EOF) {
+		if (token.type == TokenType::TOKEN_EOF)
+		{
 			break;
 		}
 	}
@@ -21,113 +24,107 @@ std::vector<Token> Lexer::tokenizeAll() {
 	return tokens;
 }
 
-Token Lexer::getNextToken() {
-	if (isAtEnd()) {
+Token Lexer::getNextToken()
+{
+	if (isAtEnd())
 		return Token(TokenType::TOKEN_EOF, "", m_line, m_column);
-	}
+	
 	
 	// Skip whitespace and comments
 	skipWhitespaceAndComments();
 	
-	if (isAtEnd()) {
+	if (isAtEnd())
 		return Token(TokenType::TOKEN_EOF, "", m_line, m_column);
-	}
+	
 	
 	char c = peek();
 	
-	// Check for different token types
-	if (isAlpha(c) || c == '_') {
+	if (isAlpha(c) || c == '_')
 		return readIdentifier();
-	}
 	
-	if (isDigit(c)) {
+	
+	if (isDigit(c))
 		return readNumber();
-	}
 	
-	if (c == '"') {
+	if (c == '"')
 		return readString();
-	}
 	
 	// Handle operators and punctuation
 	return readOperator();
 }
 
-bool Lexer::hasMoreTokens() const {
-	return !isAtEnd();
-}
-
-void Lexer::reset() {
-	m_position = 0;
-	m_line = 1;
-	m_column = 1;
-}
-
-void Lexer::skipWhitespace() {
-	while (!isAtEnd() && isWhitespace(peek())) {
-		advance();
-	}
-}
-
-void Lexer::skipComments() {
-	if (peek() == '/' && m_position + 1 < m_source.size()) {
-		if (m_source[m_position + 1] == '/') { // Single line comment
-			// Skip the //
-			advance();
-			advance();
-			
-			// Skip until end of line
-			while (!isAtEnd() && peek() != '\n') {
-				advance();
-			}
-		} else if (m_source[m_position + 1] == '*') { // Multi-line comment
-			// Skip the /*
-			advance();
-			advance();
-			
-			// Skip until closing */
-			while (!isAtEnd()) {
-				if (peek() == '*' && m_position + 1 < m_source.size() && m_source[m_position + 1] == '/') {
-					// Skip the */
-					advance();
-					advance();
-					break;
-				} else {
-					advance();
-				}
-			}
-		}
-	}
-}
-
-void Lexer::skipWhitespaceAndComments() {
+void Lexer::skipWhitespaceAndComments()
+{
 	bool skippedSomething;
 	
-	do {
+	do
+	{
 		skippedSomething = false;
 		
 		// Skip any whitespace
 		size_t oldPosition = m_position;
-		skipWhitespace();
-		if (oldPosition != m_position) {
+
+		// Skip whitespace
+		while (!isAtEnd() && isWhitespace(peek()))
+			advance();
+		
+
+		if (oldPosition != m_position)
 			skippedSomething = true;
-		}
+		
 		
 		// Check for comments
 		if (!isAtEnd() && peek() == '/' && m_position + 1 < m_source.size() &&
-			(m_source[m_position + 1] == '/' || m_source[m_position + 1] == '*')) {
-			skipComments();
+			(m_source[m_position + 1] == '/' || m_source[m_position + 1] == '*'))
+		{
+			
+			// Skip comments
+			if (peek() == '/' && m_position + 1 < m_source.size())
+			{
+				if (m_source[m_position + 1] == '/') // Single line comment
+				{
+					// Skip the //
+					advance();
+					advance();
+
+					// Skip until end of line
+					while (!isAtEnd() && peek() != '\n')
+						advance();
+				}
+				else if (m_source[m_position + 1] == '*') // Multi-line comment
+				{
+					// Skip the /*
+					advance();
+					advance();
+
+					// Skip until closing */
+					while (!isAtEnd())
+					{
+						if (peek() == '*' && m_position + 1 < m_source.size() && m_source[m_position + 1] == '/')
+						{
+							// Skip the */
+							advance();
+							advance();
+							break;
+						}
+						else
+							advance();
+					}
+				}
+			}
 			skippedSomething = true;
 		}
-	} while (skippedSomething && !isAtEnd()); // Continue until no more whitespace or comments are found
+	}
+	while (skippedSomething && !isAtEnd()); // Continue until no more whitespace or comments are found
 }
 
-Token Lexer::readIdentifier() {
+Token Lexer::readIdentifier()
+{
 	int startColumn = m_column;
 	std::string identifier;
 	
-	while (!isAtEnd() && (isAlphaNumeric(peek()) || peek() == '_')) {
+	while (!isAtEnd() && (isAlphaNumeric(peek()) || peek() == '_'))
 		identifier += advance();
-	}
 	
 	// Check if this is a keyword
 	TokenType type = identifierType(identifier);
@@ -135,7 +132,8 @@ Token Lexer::readIdentifier() {
 	return Token(type, identifier, m_line, startColumn);
 }
 
-TokenType Lexer::identifierType(const std::string& identifier) {
+TokenType Lexer::identifierType(const std::string& identifier)
+{
 	if (identifier == "func") return TokenType::TOKEN_FUNC;
 	if (identifier == "return") return TokenType::TOKEN_RETURN;
 	if (identifier == "type") return TokenType::TOKEN_TYPE;
@@ -144,34 +142,40 @@ TokenType Lexer::identifierType(const std::string& identifier) {
 	return TokenType::TOKEN_IDENTIFIER;
 }
 
-Token Lexer::readNumber() {
+Token Lexer::readNumber()
+{
 	int startColumn = m_column;
 	std::string number;
 	bool hasDecimalPoint = false;
 	
-	while (!isAtEnd() && (isDigit(peek()) || (!hasDecimalPoint && peek() == '.'))) {
-		if (peek() == '.') {
+	while (!isAtEnd() && (isDigit(peek()) || (!hasDecimalPoint && peek() == '.')))
+	{
+		if (peek() == '.')
 			hasDecimalPoint = true;
-		}
+		
 		number += advance();
 	}
 	
 	return Token(TokenType::TOKEN_NUMBER, number, m_line, startColumn);
 }
 
-Token Lexer::readString() {
+Token Lexer::readString()
+{
 	int startColumn = m_column;
 	std::string str;
 	
 	// Skip the opening quote
 	advance();
 	
-	while (!isAtEnd() && peek() != '"') {
+	while (!isAtEnd() && peek() != '"')
+	{
 		// Handle escape sequences if needed
-		if (peek() == '\\' && m_position + 1 < m_source.size()) {
+		if (peek() == '\\' && m_position + 1 < m_source.size())
+		{
 			advance(); // Skip the backslash
 			char next = advance();
-			switch (next) {
+			switch (next)
+			{
 				case 'n': str += '\n'; break;
 				case 't': str += '\t'; break;
 				case 'r': str += '\r'; break;
@@ -179,28 +183,28 @@ Token Lexer::readString() {
 				case '"': str += '"'; break;
 				default: str += next; break;
 			}
-		} else {
-			str += advance();
 		}
+		else
+			str += advance();
 	}
 	
-	if (isAtEnd()) {
+	if (isAtEnd())
 		std::cerr << "Error: Unterminated string at line " << m_line << ", column " << startColumn << std::endl;
-	} else {
-		// Skip the closing quote
-		advance();
-	}
+	else
+		advance(); // Skip the closing quote
 	
 	return Token(TokenType::TOKEN_STRING, str, m_line, startColumn);
 }
 
-Token Lexer::readOperator() {
+Token Lexer::readOperator()
+{
 	int startColumn = m_column;
 	char c = advance();
 	std::string op(1, c);
 	
 	// Map characters to token types
-	switch (c) {
+	switch (c)
+	{
 		case '(': return Token(TokenType::TOKEN_LPAREN, op, m_line, startColumn);
 		case ')': return Token(TokenType::TOKEN_RPAREN, op, m_line, startColumn);
 		case '{': return Token(TokenType::TOKEN_LBRACE, op, m_line, startColumn);
@@ -226,50 +230,60 @@ Token Lexer::readOperator() {
 
 
 
-bool Lexer::isWhitespace(char c) const {
+bool Lexer::isWhitespace(char c) const
+{
 	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-bool Lexer::isDigit(char c) const {
+bool Lexer::isDigit(char c) const
+{
 	return std::isdigit(static_cast<unsigned char>(c));
 }
 
-bool Lexer::isAlpha(char c) const {
+bool Lexer::isAlpha(char c) const
+{
 	return std::isalpha(static_cast<unsigned char>(c));
 }
 
-bool Lexer::isAlphaNumeric(char c) const {
+bool Lexer::isAlphaNumeric(char c) const
+{
 	return isAlpha(c) || isDigit(c);
 }
 
-char Lexer::peek() const {
-	if (isAtEnd()) {
+char Lexer::peek() const
+{
+	if (isAtEnd())
 		return '\0';
-	}
-	return m_source[m_position];
+	
+	return m_source[m_position]; 
 }
 
-char Lexer::advance() {
+char Lexer::advance()
+{
 	char current = m_source[m_position++];
-	if (current == '\n') {
+	if (current == '\n')
+	{
 		m_line++;
 		m_column = 1;
-	} else {
-		m_column++;
 	}
+	else
+		m_column++;
+	
 	return current;
 }
 
-bool Lexer::match(char expected) {
-	if (isAtEnd() || m_source[m_position] != expected) {
+bool Lexer::match(char expected)
+{
+	if (isAtEnd() || m_source[m_position] != expected)
 		return false;
-	}
+	
 	m_position++;
 	m_column++;
 	return true;
 }
 
-bool Lexer::isAtEnd() const {
+bool Lexer::isAtEnd() const
+{
 	return m_position >= m_source.size();
 }
 

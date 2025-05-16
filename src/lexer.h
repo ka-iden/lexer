@@ -6,38 +6,23 @@
 #include <unordered_map>
 #include <unordered_set>
 
-class Lexer {
+class Lexer
+{
 public:
 	// Constructor takes input source code
-	Lexer(const std::string& source);
+	Lexer(const std::string& source) : m_source(source), m_position(0), m_line(1), m_column(1) {}
 
-	// Tokenize the entire input and return all tokens
 	std::vector<Token> tokenizeAll();
 
-	// Get the next token from the input
 	Token getNextToken();
 
-	// Check if there are more tokens to process
-	bool hasMoreTokens() const;
-
-	// Reset the lexer to the beginning of input
-	void reset();
-
 private:
-	// Input source code
 	std::string m_source;
-	
-	// Current position in the source
 	size_t m_position;
-	
-	// Current line number (for error reporting)
+
 	int m_line;
-	
-	// Current column number (for error reporting)
 	int m_column;
-		// Helper methods
-	void skipWhitespace();
-	void skipComments();
+	
 	void skipWhitespaceAndComments();
 	Token readIdentifier();
 	Token readNumber();
