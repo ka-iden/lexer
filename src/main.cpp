@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 static std::string readFile(const std::string& filePath)
 {
@@ -56,6 +57,10 @@ int main(int argc, char* argv[])
 	
 	for (const Token& token : tokens)
 	{
+		std::cout << "Line: " << std::setw(3)
+			<< token.line << ", Column: " << std::setw(3)
+			<< token.column << " ";
+
 		switch (token.type)
 		{
 		case TokenType::TOKEN_EOF:          std::cout << "TOKEN_EOF"; break;
@@ -91,7 +96,7 @@ int main(int argc, char* argv[])
 			|| token.type == TokenType::TOKEN_NUMBER || token.type == TokenType::TOKEN_TYPE)
 			std::cout << "(" << token.value << ")";
 
-		std::cout << " Line: " << token.line << ", Column: " << token.column << "\n";
+		std::cout << "\n";
 	}
 	
 	std::cout << "\nTotal tokens: " << tokens.size() << std::endl;
