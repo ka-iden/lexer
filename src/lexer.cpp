@@ -1,6 +1,4 @@
 #include "lexer.h"
-#include <cctype>
-#include <iostream>
 
 std::vector<Token> Lexer::tokenizeAll()
 {
@@ -17,7 +15,6 @@ std::vector<Token> Lexer::tokenizeAll()
 		tokens.push_back(token);
 		if (token.type == TokenType::TOKEN_EOF)
 			break;
-		
 	}
 	
 	return tokens;
@@ -26,21 +23,18 @@ std::vector<Token> Lexer::tokenizeAll()
 Token Lexer::getNextToken()
 {
 	if (isAtEnd())
-		return Token(TokenType::TOKEN_EOF, "", m_line, m_column);
-	
+		return Token{ TokenType::TOKEN_EOF, "", m_line, m_column };
 	
 	// Skip whitespace and comments
 	skipWhitespaceAndComments();
 	
 	if (isAtEnd())
-		return Token(TokenType::TOKEN_EOF, "", m_line, m_column);
-	
+		return Token{ TokenType::TOKEN_EOF, "", m_line, m_column };
 	
 	char c = peek();
 	
 	if (isAlpha(c) || c == '_')
 		return readIdentifier();
-	
 	
 	if (isDigit(c))
 		return readNumber();
@@ -66,16 +60,13 @@ void Lexer::skipWhitespaceAndComments()
 		while (!isAtEnd() && isWhitespace(peek()))
 			advance();
 		
-
 		if (oldPosition != m_position)
 			skippedSomething = true;
-		
 		
 		// Check for comments
 		if (!isAtEnd() && peek() == '/' && m_position + 1 < m_source.size() &&
 			(m_source[m_position + 1] == '/' || m_source[m_position + 1] == '*'))
 		{
-			
 			// Skip comments
 			if (peek() == '/' && m_position + 1 < m_source.size())
 			{
@@ -127,14 +118,14 @@ Token Lexer::readIdentifier()
 	// Check if this is a keyword
 	TokenType type = identifierType(identifier);
 	
-	return Token(type, identifier, m_line, startColumn);
+	return Token{ type, identifier, m_line, startColumn };
 }
 
 TokenType Lexer::identifierType(const std::string& identifier)
 {
-	if (identifier == "func") return TokenType::TOKEN_FUNC;
+	if (identifier == "func")	return TokenType::TOKEN_FUNC;
 	if (identifier == "return") return TokenType::TOKEN_RETURN;
-	if (identifier == "type") return TokenType::TOKEN_TYPE;
+	if (identifier == "type")	return TokenType::TOKEN_TYPE;
 	
 	// If it's not a keyword, it's an identifier
 	return TokenType::TOKEN_IDENTIFIER;
@@ -154,7 +145,7 @@ Token Lexer::readNumber()
 		number += advance();
 	}
 	
-	return Token(TokenType::TOKEN_NUMBER, number, m_line, startColumn);
+	return Token{ TokenType::TOKEN_NUMBER, number, m_line, startColumn };
 }
 
 Token Lexer::readString()
@@ -174,12 +165,12 @@ Token Lexer::readString()
 			char next = advance();
 			switch (next)
 			{
-				case 'n': str += '\n'; break;
-				case 't': str += '\t'; break;
-				case 'r': str += '\r'; break;
-				case '\\': str += '\\'; break;
-				case '"': str += '"'; break;
-				default: str += next; break;
+				case 'n':	str += '\n'; break;
+				case 't':	str += '\t'; break;
+				case 'r':	str += '\r'; break;
+				case '\\':	str += '\\'; break;
+				case '"':	str += '"';  break;
+				default:	str += next; break;
 			}
 		}
 		else
@@ -187,11 +178,11 @@ Token Lexer::readString()
 	}
 	
 	if (isAtEnd())
-		std::cerr << "Error: Unterminated string at line " << m_line << ", column " << startColumn << std::endl;
+		throw("Error: Unterminated string at line " + std::to_string(m_line) + ", column " + std::to_string(startColumn));
 	else
 		advance(); // Skip the closing quote
 	
-	return Token(TokenType::TOKEN_STRING, str, m_line, startColumn);
+	return Token{ TokenType::TOKEN_STRING, str, m_line, startColumn };
 }
 
 Token Lexer::readOperator()
@@ -203,26 +194,26 @@ Token Lexer::readOperator()
 	// Map characters to token types
 	switch (c)
 	{
-		case '(': return Token(TokenType::TOKEN_LPAREN, op, m_line, startColumn);
-		case ')': return Token(TokenType::TOKEN_RPAREN, op, m_line, startColumn);
-		case '{': return Token(TokenType::TOKEN_LBRACE, op, m_line, startColumn);
-		case '}': return Token(TokenType::TOKEN_RBRACE, op, m_line, startColumn);
-		case ',': return Token(TokenType::TOKEN_COMMA, op, m_line, startColumn);
-		case '+': return Token(TokenType::TOKEN_PLUS, op, m_line, startColumn);
-		case '-': return Token(TokenType::TOKEN_MINUS, op, m_line, startColumn);
-		case '*': return Token(TokenType::TOKEN_STAR, op, m_line, startColumn);
-		case '/': return Token(TokenType::TOKEN_SLASH, op, m_line, startColumn);
-		case '=': return Token(TokenType::TOKEN_EQUAL, op, m_line, startColumn);
-		case '<': return Token(TokenType::TOKEN_LESSTHAN, op, m_line, startColumn);
-		case '>': return Token(TokenType::TOKEN_GREATERTHAN, op, m_line, startColumn);
-		case '.': return Token(TokenType::TOKEN_PERIOD, op, m_line, startColumn);
-		case ';': return Token(TokenType::TOKEN_SEMI, op, m_line, startColumn);
-		case '&': return Token(TokenType::TOKEN_AND, op, m_line, startColumn);
-		case '|': return Token(TokenType::TOKEN_OR, op, m_line, startColumn);
-		case '!': return Token(TokenType::TOKEN_NOT, op, m_line, startColumn);
-		case '^': return Token(TokenType::TOKEN_XOR, op, m_line, startColumn);
-		case '%': return Token(TokenType::TOKEN_MOD, op, m_line, startColumn);
-		default:  return Token(TokenType::TOKEN_EOF, op, m_line, startColumn);
+		case '(': return Token{ TokenType::TOKEN_LPAREN,		op, m_line, startColumn };
+		case ')': return Token{ TokenType::TOKEN_RPAREN,		op, m_line, startColumn };
+		case '{': return Token{ TokenType::TOKEN_LBRACE,		op, m_line, startColumn };
+		case '}': return Token{ TokenType::TOKEN_RBRACE,		op, m_line, startColumn };
+		case ',': return Token{ TokenType::TOKEN_COMMA,			op, m_line, startColumn };
+		case '+': return Token{ TokenType::TOKEN_PLUS,			op, m_line, startColumn };
+		case '-': return Token{ TokenType::TOKEN_MINUS,			op, m_line, startColumn };
+		case '*': return Token{ TokenType::TOKEN_STAR,			op, m_line, startColumn };
+		case '/': return Token{ TokenType::TOKEN_SLASH,			op, m_line, startColumn };
+		case '=': return Token{ TokenType::TOKEN_EQUAL,			op, m_line, startColumn };
+		case '<': return Token{ TokenType::TOKEN_LESSTHAN,		op, m_line, startColumn };
+		case '>': return Token{ TokenType::TOKEN_GREATERTHAN,	op, m_line, startColumn };
+		case '.': return Token{ TokenType::TOKEN_PERIOD,		op, m_line, startColumn };
+		case ';': return Token{ TokenType::TOKEN_SEMI,			op, m_line, startColumn };
+		case '&': return Token{ TokenType::TOKEN_AND,			op, m_line, startColumn };
+		case '|': return Token{ TokenType::TOKEN_OR,			op, m_line, startColumn };
+		case '!': return Token{ TokenType::TOKEN_NOT,			op, m_line, startColumn };
+		case '^': return Token{ TokenType::TOKEN_XOR,			op, m_line, startColumn };
+		case '%': return Token{ TokenType::TOKEN_MOD,			op, m_line, startColumn };
+		default:  return Token{ TokenType::TOKEN_EOF,			op, m_line, startColumn };
 	}
 }
 
@@ -284,4 +275,3 @@ bool Lexer::isAtEnd() const
 {
 	return m_position >= m_source.size();
 }
-

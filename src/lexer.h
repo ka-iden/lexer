@@ -1,16 +1,14 @@
 #pragma once
 
 #include "token.h"
+
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
 
 class Lexer
 {
 public:
-	// Constructor takes input source code
-	Lexer(const std::string& source) : m_source(source), m_position(0), m_line(1), m_column(1) {}
+	Lexer(const std::string& source) : m_source(source) {}
 
 	std::vector<Token> tokenizeAll();
 
@@ -18,10 +16,10 @@ public:
 
 private:
 	std::string m_source;
-	size_t m_position;
 
-	int m_line;
-	int m_column;
+	size_t m_position = 0;
+	int m_line = 1;
+	int m_column = 1;
 	
 	void skipWhitespaceAndComments();
 	Token readIdentifier();

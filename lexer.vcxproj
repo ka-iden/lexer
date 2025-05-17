@@ -129,7 +129,6 @@
   <ItemGroup>
     <ClCompile Include="src\lexer.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />

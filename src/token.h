@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <ostream>
 
 enum class TokenType
 { // Stole the list of tokens from wzid
@@ -40,9 +39,4 @@ struct Token
 	std::string value;
 	int line;
 	int column;
-
-	Token(TokenType t, const std::string& v, int l, int c)
-		: type(t), value(v), line(l), column(c) {}
-
-	friend std::ostream& operator<< (std::ostream& os, const Token& token);
 };
