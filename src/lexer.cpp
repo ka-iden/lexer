@@ -9,14 +9,15 @@ std::vector<Token> Lexer::tokenizeAll()
 	m_line = 1;
 	m_column = 1;
 
-	while (!isAtEnd())
+	Token token = getNextToken();
+	while (token.type != TokenType::TOKEN_EOF)
 	{
-		Token token = getNextToken();
 		tokens.push_back(token);
-		if (token.type == TokenType::TOKEN_EOF)
-			break;
+		token = getNextToken();
 	}
-	
+
+	tokens.push_back(token); // Add the EOF token
+
 	return tokens;
 }
 
@@ -32,7 +33,7 @@ Token Lexer::getNextToken()
 		return Token{ TokenType::TOKEN_EOF, "", m_line, m_column };
 	
 	char c = peek();
-	
+
 	if (isAlpha(c) || c == '_')
 		return readIdentifier();
 	
