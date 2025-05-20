@@ -2,7 +2,7 @@
 
 #include <string>
 
-enum class TokenType
+typedef enum TokenType
 { // Stole the list of tokens from wzid
 	TOKEN_EOF,			// End of file
 	TOKEN_LPAREN,		// (

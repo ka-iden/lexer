@@ -8,18 +8,16 @@
 class Lexer
 {
 public:
-	Lexer(const std::string& source) : m_source(source) {}
-
-	std::vector<Token> tokenizeAll();
+	Lexer(const std::string& source) : m_Source(source) {}
 
 	Token getNextToken();
 
 private:
-	std::string m_source;
+	std::string m_Source;
 
-	size_t m_position = 0;
-	int m_line = 1;
-	int m_column = 1;
+	size_t m_Position = 0;
+	int m_Line = 1;
+	int m_Column = 1;
 	
 	void skipWhitespaceAndComments();
 	Token readIdentifier();

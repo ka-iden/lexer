@@ -1,36 +1,15 @@
 #include "lexer.h"
 
-std::vector<Token> Lexer::tokenizeAll()
-{
-	std::vector<Token> tokens;
-
-	// Reset lexer state
-	m_position = 0;
-	m_line = 1;
-	m_column = 1;
-
-	Token token = getNextToken();
-	while (token.type != TokenType::TOKEN_EOF)
-	{
-		tokens.push_back(token);
-		token = getNextToken();
-	}
-
-	tokens.push_back(token); // Add the EOF token
-
-	return tokens;
-}
-
 Token Lexer::getNextToken()
 {
 	if (isAtEnd())
-		return Token{ TokenType::TOKEN_EOF, "", m_line, m_column };
+		return Token{ TOKEN_EOF, "", m_Line, m_Column };
 	
 	// Skip whitespace and comments
 	skipWhitespaceAndComments();
 	
 	if (isAtEnd())
-		return Token{ TokenType::TOKEN_EOF, "", m_line, m_column };
+		return Token{ TOKEN_EOF, "", m_Line, m_Column };
 	
 	char c = peek();
 
@@ -55,23 +34,23 @@ void Lexer::skipWhitespaceAndComments()
 		skippedSomething = false;
 		
 		// Skip any whitespace
-		size_t oldPosition = m_position;
+		size_t oldPosition = m_Position;
 
 		// Skip whitespace
 		while (!isAtEnd() && isWhitespace(peek()))
 			advance();
 		
-		if (oldPosition != m_position)
+		if (oldPosition != m_Position)
 			skippedSomething = true;
 		
 		// Check for comments
-		if (!isAtEnd() && peek() == '/' && m_position + 1 < m_source.size() &&
-			(m_source[m_position + 1] == '/' || m_source[m_position + 1] == '*'))
+		if (!isAtEnd() && peek() == '/' && m_Position + 1 < m_Source.size() &&
+			(m_Source[m_Position + 1] == '/' || m_Source[m_Position + 1] == '*'))
 		{
 			// Skip comments
-			if (peek() == '/' && m_position + 1 < m_source.size())
+			if (peek() == '/' && m_Position + 1 < m_Source.size())
 			{
-				if (m_source[m_position + 1] == '/') // Single line comment
+				if (m_Source[m_Position + 1] == '/') // Single line comment
 				{
 					// Skip the //
 					advance();
@@ -81,7 +60,7 @@ void Lexer::skipWhitespaceAndComments()
 					while (!isAtEnd() && peek() != '\n')
 						advance();
 				}
-				else if (m_source[m_position + 1] == '*') // Multi-line comment
+				else if (m_Source[m_Position + 1] == '*') // Multi-line comment
 				{
 					// Skip the /*
 					advance();
@@ -90,7 +69,7 @@ void Lexer::skipWhitespaceAndComments()
 					// Skip until closing */
 					while (!isAtEnd())
 					{
-						if (peek() == '*' && m_position + 1 < m_source.size() && m_source[m_position + 1] == '/')
+						if (peek() == '*' && m_Position + 1 < m_Source.size() && m_Source[m_Position + 1] == '/')
 						{
 							// Skip the */
 							advance();
@@ -110,7 +89,7 @@ void Lexer::skipWhitespaceAndComments()
 
 Token Lexer::readIdentifier()
 {
-	int startColumn = m_column;
+	int startColumn = m_Column;
 	std::string identifier;
 	
 	while (!isAtEnd() && (isAlphaNumeric(peek()) || peek() == '_'))
@@ -119,22 +98,22 @@ Token Lexer::readIdentifier()
 	// Check if this is a keyword
 	TokenType type = identifierType(identifier);
 	
-	return Token{ type, identifier, m_line, startColumn };
+	return Token{ type, identifier, m_Line, startColumn };
 }
 
 TokenType Lexer::identifierType(const std::string& identifier)
 {
-	if (identifier == "func")	return TokenType::TOKEN_FUNC;
-	if (identifier == "return") return TokenType::TOKEN_RETURN;
-	if (identifier == "type")	return TokenType::TOKEN_TYPE;
+	if (identifier == "func")	return TOKEN_FUNC;
+	if (identifier == "return") return TOKEN_RETURN;
+	if (identifier == "type")	return TOKEN_TYPE;
 	
 	// If it's not a keyword, it's an identifier
-	return TokenType::TOKEN_IDENTIFIER;
+	return TOKEN_IDENTIFIER;
 }
 
 Token Lexer::readNumber()
 {
-	int startColumn = m_column;
+	int startColumn = m_Column;
 	std::string number;
 	bool hasDecimalPoint = false;
 	
@@ -146,12 +125,12 @@ Token Lexer::readNumber()
 		number += advance();
 	}
 	
-	return Token{ TokenType::TOKEN_NUMBER, number, m_line, startColumn };
+	return Token{ TOKEN_NUMBER, number, m_Line, startColumn };
 }
 
 Token Lexer::readString()
 {
-	int startColumn = m_column;
+	int startColumn = m_Column;
 	std::string str;
 	
 	// Skip the opening quote
@@ -160,7 +139,7 @@ Token Lexer::readString()
 	while (!isAtEnd() && peek() != '"')
 	{
 		// Handle escape sequences if needed
-		if (peek() == '\\' && m_position + 1 < m_source.size())
+		if (peek() == '\\' && m_Position + 1 < m_Source.size())
 		{
 			advance(); // Skip the backslash
 			char next = advance();
@@ -179,42 +158,42 @@ Token Lexer::readString()
 	}
 	
 	if (isAtEnd())
-		throw("Error: Unterminated string at line " + std::to_string(m_line) + ", column " + std::to_string(startColumn));
+		throw("Error: Unterminated string at line " + std::to_string(m_Line) + ", column " + std::to_string(startColumn));
 	else
 		advance(); // Skip the closing quote
 	
-	return Token{ TokenType::TOKEN_STRING, str, m_line, startColumn };
+	return Token{ TOKEN_STRING, str, m_Line, startColumn };
 }
 
 Token Lexer::readOperator()
 {
-	int startColumn = m_column;
+	int startColumn = m_Column;
 	char c = advance();
 	std::string op(1, c);
 	
 	// Map characters to token types
 	switch (c)
 	{
-		case '(': return Token{ TokenType::TOKEN_LPAREN,		op, m_line, startColumn };
-		case ')': return Token{ TokenType::TOKEN_RPAREN,		op, m_line, startColumn };
-		case '{': return Token{ TokenType::TOKEN_LBRACE,		op, m_line, startColumn };
-		case '}': return Token{ TokenType::TOKEN_RBRACE,		op, m_line, startColumn };
-		case ',': return Token{ TokenType::TOKEN_COMMA,			op, m_line, startColumn };
-		case '+': return Token{ TokenType::TOKEN_PLUS,			op, m_line, startColumn };
-		case '-': return Token{ TokenType::TOKEN_MINUS,			op, m_line, startColumn };
-		case '*': return Token{ TokenType::TOKEN_STAR,			op, m_line, startColumn };
-		case '/': return Token{ TokenType::TOKEN_SLASH,			op, m_line, startColumn };
-		case '=': return Token{ TokenType::TOKEN_EQUAL,			op, m_line, startColumn };
-		case '<': return Token{ TokenType::TOKEN_LESSTHAN,		op, m_line, startColumn };
-		case '>': return Token{ TokenType::TOKEN_GREATERTHAN,	op, m_line, startColumn };
-		case '.': return Token{ TokenType::TOKEN_PERIOD,		op, m_line, startColumn };
-		case ';': return Token{ TokenType::TOKEN_SEMI,			op, m_line, startColumn };
-		case '&': return Token{ TokenType::TOKEN_AND,			op, m_line, startColumn };
-		case '|': return Token{ TokenType::TOKEN_OR,			op, m_line, startColumn };
-		case '!': return Token{ TokenType::TOKEN_NOT,			op, m_line, startColumn };
-		case '^': return Token{ TokenType::TOKEN_XOR,			op, m_line, startColumn };
-		case '%': return Token{ TokenType::TOKEN_MOD,			op, m_line, startColumn };
-		default:  return Token{ TokenType::TOKEN_EOF,			op, m_line, startColumn };
+		case '(': return Token{ TOKEN_LPAREN,		op, m_Line, startColumn };
+		case ')': return Token{ TOKEN_RPAREN,		op, m_Line, startColumn };
+		case '{': return Token{ TOKEN_LBRACE,		op, m_Line, startColumn };
+		case '}': return Token{ TOKEN_RBRACE,		op, m_Line, startColumn };
+		case ',': return Token{ TOKEN_COMMA,		op, m_Line, startColumn };
+		case '+': return Token{ TOKEN_PLUS,			op, m_Line, startColumn };
+		case '-': return Token{ TOKEN_MINUS,		op, m_Line, startColumn };
+		case '*': return Token{ TOKEN_STAR,			op, m_Line, startColumn };
+		case '/': return Token{ TOKEN_SLASH,		op, m_Line, startColumn };
+		case '=': return Token{ TOKEN_EQUAL,		op, m_Line, startColumn };
+		case '<': return Token{ TOKEN_LESSTHAN,		op, m_Line, startColumn };
+		case '>': return Token{ TOKEN_GREATERTHAN,	op, m_Line, startColumn };
+		case '.': return Token{ TOKEN_PERIOD,		op, m_Line, startColumn };
+		case ';': return Token{ TOKEN_SEMI,			op, m_Line, startColumn };
+		case '&': return Token{ TOKEN_AND,			op, m_Line, startColumn };
+		case '|': return Token{ TOKEN_OR,			op, m_Line, startColumn };
+		case '!': return Token{ TOKEN_NOT,			op, m_Line, startColumn };
+		case '^': return Token{ TOKEN_XOR,			op, m_Line, startColumn };
+		case '%': return Token{ TOKEN_MOD,			op, m_Line, startColumn };
+		default:  return Token{ TOKEN_EOF,			op, m_Line, startColumn };
 	}
 }
 
@@ -245,34 +224,34 @@ char Lexer::peek() const
 	if (isAtEnd())
 		return '\0';
 	
-	return m_source[m_position]; 
+	return m_Source[m_Position]; 
 }
 
 char Lexer::advance()
 {
-	char current = m_source[m_position++];
+	char current = m_Source[m_Position++];
 	if (current == '\n')
 	{
-		m_line++;
-		m_column = 1;
+		m_Line++;
+		m_Column = 1;
 	}
 	else
-		m_column++;
+		m_Column++;
 	
 	return current;
 }
 
 bool Lexer::match(char expected)
 {
-	if (isAtEnd() || m_source[m_position] != expected)
+	if (isAtEnd() || m_Source[m_Position] != expected)
 		return false;
 	
-	m_position++;
-	m_column++;
+	m_Position++;
+	m_Column++;
 	return true;
 }
 
 bool Lexer::isAtEnd() const
 {
-	return m_position >= m_source.size();
+	return m_Position >= m_Source.size();
 }
