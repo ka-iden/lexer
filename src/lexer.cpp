@@ -144,12 +144,12 @@ Token Lexer::readString()
 			char next = advance();
 			switch (next)
 			{
-			case 'n':	str += '\n'; break;
-			case 't':	str += '\t'; break;
-			case 'r':	str += '\r'; break;
-			case '\\':	str += '\\'; break;
-			case '"':	str += '"';  break;
-			default:	str += next; break;
+			case 'n':	str += '\n';	break;
+			case 't':	str += '\t';	break;
+			case 'r':	str += '\r';	break;
+			case '\\':	str += '\\';	break;
+			case '"':	str += '"';		break;
+			default:	str += next;	break;
 			}
 		}
 		else
@@ -192,7 +192,7 @@ Token Lexer::readOperator()
 	case '!': return Token{ TOKEN_NOT,			op };
 	case '^': return Token{ TOKEN_XOR,			op };
 	case '%': return Token{ TOKEN_MOD,			op };
-	default:  throw ("Error: Unknown operator at line " + std::to_string(m_Line) + ", column " + std::to_string(startColumn));
+	default: throw ("Error: Unknown operator at line " + std::to_string(m_Line) + ", column " + std::to_string(startColumn));
 	}
 }
 
