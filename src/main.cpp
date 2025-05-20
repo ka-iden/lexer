@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
 
 const std::string sampleCode =
 R"(func main() {
@@ -13,10 +12,6 @@ R"(func main() {
 
 void printToken(Token token)
 {
-	std::cout << "Line: " << std::setw(3)
-		<< token.line << ", Column: " << std::setw(3)
-		<< token.column << " ";
-
 	switch (token.type)
 	{
 	case TOKEN_EOF:          std::cout << "TOKEN_EOF"; break;
@@ -58,7 +53,7 @@ void printToken(Token token)
 int main(int argc, char* argv[])
 {
 	std::string sourceCode;
-	
+
 	if (argc > 1)
 	{
 		// Read from file if filename is provided
@@ -84,11 +79,11 @@ int main(int argc, char* argv[])
 
 	if (sourceCode.empty())
 		throw std::runtime_error("No source code to tokenize.");
-	
+
 	Lexer lexer(sourceCode);
 
 	std::cout << "\nTokens:\n=======" << std::endl;
-	
+
 	Token token = lexer.getNextToken();
 	int tokenCount = 0; // Solely for debugging purposes
 	while (token.type != TOKEN_EOF)
@@ -97,9 +92,9 @@ int main(int argc, char* argv[])
 		token = lexer.getNextToken();
 		tokenCount++;
 	}
-	
+
 	printToken(token);
 	tokenCount++; // EOF token handled outside of loop
-	
+
 	std::cout << "\nTotal tokens: " << tokenCount << std::endl;
 }
