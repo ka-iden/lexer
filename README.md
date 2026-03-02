@@ -1,3 +1,9 @@
+> [!CAUTION]
+> I have moved to [Codeberg.](https://codeberg.org/ka_iden) Repo has moved [here.](https://codeberg.org/ka_iden/lexer)  
+> Repo has been archived not because I won't touch it, but this also does not  
+> mean I will come back to this project any time soon, only that I want to  
+> avoid GitHub unless I need it, such as for contributions to other's projects.
+
 # lexer
 
 Writing a simple lexer to learn how to tokenize code/statements.  
